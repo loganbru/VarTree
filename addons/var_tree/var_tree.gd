@@ -1,10 +1,13 @@
 class_name VarTree extends Tree
+## A variable Tree that allows you to track variable values in-game.
 
+## Changes the alignment of the value display cell.
 @export_enum("Left:0", "Right:2", "Center:1") var value_alignment: int
 
+## Root tree item.
 var root : TreeItem = null
+## Storage array for TreeItems of mounted variables. Used for updating.
 var mounted_vars : Array[TreeItem] = []
-var mounted_buttons : Array[TreeItem] = []
 
 func _init() -> void:
 	columns = 2
@@ -25,6 +28,8 @@ func _init() -> void:
 func _process(delta: float) -> void:
 	update_all()
 
+## Creates a category at the given path. Returns the TreeItem representing the category. [br][br]
+## Can also be used to retrieve a category TreeItem but it will create the category if it doesn't exist.
 func create_category(path: String) -> TreeItem:
 	var path_arr = path.split("/")
 	var current_item = root
@@ -53,6 +58,9 @@ func create_category(path: String) -> TreeItem:
 
 	return current_item
 
+## Mounts a variable at the given path. [br][br]
+## The path string should be the categories followed by the variable name: [code]Player/Stats/current_health[/code] [br][br]
+## OR, just the variable name if you want it to live on the root category: [code]current_health[/code]
 func mount_var(node : Node, path : String, options : Dictionary = {}) -> TreeItem:
 	var path_arr : Array = path.split("/")
 	var parent : TreeItem = root
@@ -66,6 +74,7 @@ func mount_var(node : Node, path : String, options : Dictionary = {}) -> TreeIte
 	
 	var tree_item : TreeItem = parent.create_child()
 	tree_item.set_text(0, var_name)
+	tree_item.set_tooltip_text(0, "Variable: %s, Node: %s" % [var_name, node.name])
 	tree_item.set_text(1, "unknown")
 	
 	tree_item.set_text_alignment(1, value_alignment)
@@ -82,6 +91,9 @@ func mount_var(node : Node, path : String, options : Dictionary = {}) -> TreeIte
 	mounted_vars.append(tree_item)
 	return tree_item
 
+## Mounts a clickable button to the tree with the given callback. When the button is clicked, the callback will be called. [br][br]
+## The path works the same as in [method VarTree.mount_var] except the variable name should be replaced with the button label. [br][br]
+## [code]Player/Stats/Reset Health[/code] OR [code]Reset Health[/code]
 func mount_button(path : String, callback : Callable, options : Dictionary = {}) -> TreeItem:
 	var path_arr : Array = path.split("/")
 	var parent : TreeItem = root
@@ -95,16 +107,17 @@ func mount_button(path : String, callback : Callable, options : Dictionary = {})
 	
 	var tree_item : TreeItem = parent.create_child()
 	tree_item.set_text(0, button_name)
-	tree_item.add_button(1, preload("res://addons/var_tree/button.svg"), mounted_buttons.size())
+	tree_item.add_button(1, preload("res://addons/var_tree/button.svg"))
 	tree_item.set_metadata(0, {
 		"item_type" : 2,
 		"callback" : callback,
 		"options" : options
 	})
-	mounted_buttons.append(tree_item)
 	
 	return tree_item
 
+## Updates the values for all mounted variables. [br][br]
+## TODO: Add optional param [code]path[/code] in order to target specific variables for updating.
 func update_all() -> void:
 	for tree_item : TreeItem in mounted_vars:
 		var meta : Dictionary = tree_item.get_metadata(0)
@@ -115,7 +128,9 @@ func update_all() -> void:
 			formatted = meta.options.format_callback.call(val)
 		
 		tree_item.set_text(1, str(formatted))
+		tree_item.set_tooltip_text(1, "Type: %s" % type_string(typeof(val)))
 
+## Applys options to the given TreeItem like font_size, color, bg_color, etc.
 func apply_options(tree_item : TreeItem) -> void:
 	var options : Dictionary = tree_item.get_metadata(0).options
 	
