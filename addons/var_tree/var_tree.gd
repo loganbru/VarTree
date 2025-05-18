@@ -1,15 +1,17 @@
 class_name VarTree extends Tree
 
+@export_enum("Left:0", "Right:2", "Center:1") var value_alignment: int
+
 var root : TreeItem = null
 var mounted_vars : Array[TreeItem] = []
 
 func _init() -> void:
 	columns = 2
-	column_titles_visible = true
+	column_titles_visible = false
+	set_column_title(0, "Variable")
+	set_column_title(1, "Value")
 	select_mode = Tree.SELECT_ROW
 	hide_root = true
-	set_column_title(0, "Var")
-	set_column_title(1, "Value")
 	
 	if !root:
 		root = create_item()
@@ -62,12 +64,17 @@ func mount_var(node : Node, path : String, options : Dictionary = {}) -> TreeIte
 	var tree_item : TreeItem = parent.create_child()
 	tree_item.set_text(0, var_name)
 	tree_item.set_text(1, "unknown")
+	
+	tree_item.set_text_alignment(1, value_alignment)
+	
 	tree_item.set_metadata(0, {
 		"item_type" : 1,
 		"node" : node,
 		"var_name" : var_name,
 		"options" : options
 	})
+	
+	apply_options(tree_item)
 	
 	mounted_vars.append(tree_item)
 	return tree_item
@@ -78,4 +85,32 @@ func update_all() -> void:
 		var val = meta.node.get(meta.var_name)
 		var formatted : String = str(val)
 		
+		if meta.options.has("format_callback"):
+			formatted = meta.options.format_callback.call(val)
+		
 		tree_item.set_text(1, str(formatted))
+
+func apply_options(tree_item : TreeItem) -> void:
+	var options : Dictionary = tree_item.get_metadata(0).options
+	
+	if options.keys().size() == 0:
+		return
+	
+	if options.has("label"):
+		tree_item.set_text(0, options.label)
+	
+	if options.has("bg_color"):
+		tree_item.set_custom_bg_color(0, options.bg_color)
+		tree_item.set_custom_bg_color(1, options.bg_color)
+	
+	if options.has("font_color"):
+		tree_item.set_custom_color(0, options.font_color)
+		tree_item.set_custom_color(1, options.font_color)
+	
+	if options.has("font_size"):
+		tree_item.set_custom_font_size(0, options.font_size)
+		tree_item.set_custom_font_size(1, options.font_size)
+	
+	if options.has("font"):
+		tree_item.set_custom_font(0, options.font)
+		tree_item.set_custom_font(1, options.font)
