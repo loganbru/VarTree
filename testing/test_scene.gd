@@ -11,6 +11,8 @@ func _ready() -> void:
 		"format_callback" : _format_float
 	})
 	var_tree.mount_var(self, "Time Elapsed/minutes")
+	
+	var_tree.mount_button("Test Button", _btn_callback)
 
 func _process(delta: float) -> void:
 	seconds += delta
@@ -20,3 +22,6 @@ func _process(delta: float) -> void:
 
 func _format_float(_input : float) -> String:
 	return str(snappedf(_input, 0.01))
+
+func _btn_callback() -> void:
+	print("btn clicked")

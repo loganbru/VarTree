@@ -4,6 +4,7 @@ class_name VarTree extends Tree
 
 var root : TreeItem = null
 var mounted_vars : Array[TreeItem] = []
+var mounted_buttons : Array[TreeItem] = []
 
 func _init() -> void:
 	columns = 2
@@ -12,6 +13,8 @@ func _init() -> void:
 	set_column_title(1, "Value")
 	select_mode = Tree.SELECT_ROW
 	hide_root = true
+	
+	connect("button_clicked", _on_button_clicked)
 	
 	if !root:
 		root = create_item()
@@ -79,6 +82,29 @@ func mount_var(node : Node, path : String, options : Dictionary = {}) -> TreeIte
 	mounted_vars.append(tree_item)
 	return tree_item
 
+func mount_button(path : String, callback : Callable, options : Dictionary = {}) -> TreeItem:
+	var path_arr : Array = path.split("/")
+	var parent : TreeItem = root
+	var button_name : String = path
+	
+	if path_arr.size() > 1:
+		button_name = path_arr[-1]
+		var category_path_arr = path_arr
+		category_path_arr.remove_at(path_arr.size() - 1)
+		parent = create_category("/".join(category_path_arr))
+	
+	var tree_item : TreeItem = parent.create_child()
+	tree_item.set_text(0, button_name)
+	tree_item.add_button(1, preload("res://addons/var_tree/button.svg"), mounted_buttons.size())
+	tree_item.set_metadata(0, {
+		"item_type" : 2,
+		"callback" : callback,
+		"options" : options
+	})
+	mounted_buttons.append(tree_item)
+	
+	return tree_item
+
 func update_all() -> void:
 	for tree_item : TreeItem in mounted_vars:
 		var meta : Dictionary = tree_item.get_metadata(0)
@@ -114,3 +140,6 @@ func apply_options(tree_item : TreeItem) -> void:
 	if options.has("font"):
 		tree_item.set_custom_font(0, options.font)
 		tree_item.set_custom_font(1, options.font)
+
+func _on_button_clicked(item: TreeItem, column: int, id: int, mouse_button_index: int) -> void:
+	item.get_metadata(0).callback.call()
