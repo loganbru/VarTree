@@ -1,6 +1,10 @@
 class_name VarTree extends Tree
 ## A variable Tree that allows you to track variable values in-game.
 
+## If true, all mounted variables are updated every frame with their current values. [br][br]
+## If false or _process function overridden, the only way to update variables is by calling the [method VarTree.update_all] method directly.
+@export var update_on_process : bool = true
+
 ## Changes the alignment of the value display cell.
 @export_enum("Left:0", "Right:2", "Center:1") var value_alignment: int
 
@@ -9,6 +13,7 @@ var root : TreeItem = null
 ## Storage array for TreeItems of mounted variables. Used for updating.
 var mounted_vars : Array[TreeItem] = []
 
+## Do [b]not[/b] overwrite. Contains critical setup for VarTree functionality.
 func _init() -> void:
 	columns = 2
 	column_titles_visible = false
@@ -26,7 +31,8 @@ func _init() -> void:
 		})
 
 func _process(delta: float) -> void:
-	update_all()
+	if update_on_process:
+		update_all()
 
 ## Creates a category at the given path. Returns the TreeItem representing the category. [br][br]
 ## Can also be used to retrieve a category TreeItem but it will create the category if it doesn't exist.
