@@ -11,7 +11,7 @@ script = ExtResource("1_qd2h8")
 [node name="VarTree" type="Tree" parent="CanvasLayer"]
 offset_left = 44.0
 offset_top = 69.0
-offset_right = 281.0
-offset_bottom = 384.0
+offset_right = 460.0
+offset_bottom = 680.0
 script = ExtResource("2_xraay")
 metadata/_custom_type_script = "uid://bpvwcjxfptkki"

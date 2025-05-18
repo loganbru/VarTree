@@ -11,8 +11,14 @@ config_version=5
 [application]
 
 config/name="VarTree"
+run/main_scene="uid://i4puhb8joq1j"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
 
 [editor_plugins]
 
