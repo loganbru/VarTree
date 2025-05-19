@@ -14,7 +14,7 @@
 #### `update_on_process: bool`
 
 If true, `VarTree` automatically calls `update_all()` every frame via `_process()`.  
-Set to `false` to update manually.
+Defaults to `true`. Set to `false` to update manually.
 
 #### `value_alignment: int`
 
