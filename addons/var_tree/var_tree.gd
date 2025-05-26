@@ -11,7 +11,8 @@ class_name VarTree extends Tree
 ## Root tree item.
 var root : TreeItem = null
 ## Storage array for TreeItems of mounted variables. Used for updating.
-var mounted_vars : Array[TreeItem] = []
+var _mounted_vars : Array[TreeItem] = []
+var _mounted_methods : Array[TreeItem] = []
 
 ## Do [b]not[/b] overwrite. Contains critical setup for VarTree functionality.
 func _init() -> void:
@@ -94,7 +95,36 @@ func mount_var(node : Node, path : String, options : Dictionary = {}) -> TreeIte
 	
 	apply_options(tree_item)
 	
-	mounted_vars.append(tree_item)
+	_mounted_vars.append(tree_item)
+	return tree_item
+
+## Mounts a method to the tree. On update, the method will be called and the result will be displayed.
+## The path param should ONLY contain the category. If no category, make path "" or "root".
+## Use the option "params" to pass parameters to the method.
+
+func mount_method(path : String, method : Callable, options : Dictionary = {}) -> TreeItem:
+	var path_arr : Array = path.split("/")
+	var parent : TreeItem = root
+	var method_name : String = str(method.get_method())
+	
+	if path_arr.size() > 0 and path != "root":
+		parent = create_category("/".join(path_arr))
+	
+	var tree_item : TreeItem = parent.create_child()
+	tree_item.set_text(0, method_name)
+	tree_item.set_tooltip_text(0, "Method: %s" % [method_name])
+	tree_item.set_text(1, "unknown")
+	tree_item.set_text_alignment(1, value_alignment)
+	tree_item.set_metadata(0, {
+		"item_type" : 1,
+		"method_name" : method_name,
+		"method" : method,
+		"options" : options
+	})
+	
+	apply_options(tree_item)
+	
+	_mounted_methods.append(tree_item)
 	return tree_item
 
 ## Mounts a clickable button to the tree with the given callback. When the button is clicked, the callback will be called. [br][br]
@@ -125,7 +155,11 @@ func mount_button(path : String, callback : Callable, options : Dictionary = {})
 ## Updates the values for all mounted variables. [br][br]
 ## TODO: Add optional param [code]path[/code] in order to target specific variables for updating.
 func update_all() -> void:
-	for tree_item : TreeItem in mounted_vars:
+	update_vars()
+	update_methods()
+
+func update_vars() -> void:
+	for tree_item : TreeItem in _mounted_vars:
 		var meta : Dictionary = tree_item.get_metadata(0)
 		var val = meta.node.get(meta.var_name)
 		var formatted : String = str(val)
@@ -135,6 +169,18 @@ func update_all() -> void:
 		
 		tree_item.set_text(1, str(formatted))
 		tree_item.set_tooltip_text(1, "Type: %s" % type_string(typeof(val)))
+
+func update_methods() -> void:
+	for tree_item : TreeItem in _mounted_methods:
+		var meta : Dictionary = tree_item.get_metadata(0)
+		var result = meta.method.callv(meta.options.params if meta.options.has("params") else [])
+		var formatted : String = str(result)
+		
+		if meta.options.has("format_callback"):
+			formatted = meta.options.format_callback.call(result)
+		
+		tree_item.set_text(1, str(formatted))
+		tree_item.set_tooltip_text(1, "Type: %s" % type_string(typeof(result)))
 
 ## Applys options to the given TreeItem like font_size, color, bg_color, etc.
 func apply_options(tree_item : TreeItem) -> void:

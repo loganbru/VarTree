@@ -15,9 +15,16 @@ func _ready() -> void:
 		"format_callback" : func (_input : float) -> String:
 			return str(snappedf(_input, 0.01))
 	})
+	
+	var_tree.mount_method("Methods/Testing", _test_method, {
+		"params" : [10.0]
+	})
 
 func _format_player_speed(_input : float) -> String:
 	return "%0.2f / %0.2f" % [_input, player.max_speed]
 
 func _format_vector2(_input : Vector2) -> String:
 	return "X: %0.2f Y: %0.2f" % [_input.x, _input.y]
+
+func _test_method(var1 : float = 1.0) -> String:
+	return str(var1)

@@ -41,7 +41,7 @@ The callback method should take the value as an input and return a string for di
 ```gdscript
 # Example formatter that displays a readable Vector2
 func _format_vector2(_input : Vector2) -> String:
-      return "X: %0.2f, Y: %02.f" % [_input.x, _input.y]
+	  return "X: %0.2f, Y: %02.f" % [_input.x, _input.y]
 ```
 
 ### Button Options
@@ -101,26 +101,26 @@ extends Node2D
 var counter : float = 0.0
 
 func _ready() -> void:
-      # Mount the counter variable
-      var_tree.mount_var(self, "Time Elapsed/counter", {
-         "font_color" : Color.RED,
-         "format_callback" : _format_float
-      })
+	  # Mount the counter variable
+	  var_tree.mount_var(self, "Time Elapsed/counter", {
+		 "font_color" : Color.RED,
+		 "format_callback" : _format_float
+	  })
 
-      # Mount the reset counter button
-      var_tree.mount_button("Time Elapsed/Reset Counter", _reset_counter)
+	  # Mount the reset counter button
+	  var_tree.mount_button("Time Elapsed/Reset Counter", _reset_counter)
 
 func _process(delta : float) -> void:
-      # Update counter
-      counter += delta
+	  # Update counter
+	  counter += delta
 
 func _reset_counter() -> void:
-      # Reset counter
-      counter = 0.0
+	  # Reset counter
+	  counter = 0.0
 
 func _format_float(_input : float) -> String:
-      # Return the float formatted as a string and rounded to the nearest hundredth
-      return str(snappedf(_input, 0.01))
+	  # Return the float formatted as a string and rounded to the nearest hundredth
+	  return str(snappedf(_input, 0.01))
 
 ```
 
