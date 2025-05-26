@@ -48,7 +48,7 @@ func _format_vector2(_input : Vector2) -> String:
 
 There are currently _no_ button options but I have plans to implement some.
 
-### Methods
+## Methods
 
 #### `mount_var(node: Node, path: String, options: Dictionary = {}) -> TreeItem`
 
@@ -90,7 +90,7 @@ Gets and displays the current values of all mounted variables.
 $VarTree.update_all()
 ```
 
-### Example Implementation
+## Example Implementation
 ```gdscript
 extends Node2D
 
